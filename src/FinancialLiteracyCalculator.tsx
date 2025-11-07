@@ -1,150 +1,110 @@
 import React, { useState } from "react";
-import "./FinancialLiteracyCalculator.css";  // Import the CSS file
+import "./FinancialLiteracyCalculator.css";
+import { FormInputs, CalculationResult, ValidationErrors } from "./types";
+import {
+  SCHOOLS,
+  MAJORS_AND_CAREERS,
+  SALARY_DATA,
+  DEFAULT_YEARS,
+  DEFAULT_REPAYMENT_TERM,
+} from "./constants";
+import {
+  validateInputs,
+  calculateGrade,
+  calculateMonthlyPayment,
+  formatCurrency,
+  formatPercentage,
+} from "./utils";
 
 const FinancialLiteracyCalculator: React.FC = () => {
-  const [inputs, setInputs] = useState({
+  const [inputs, setInputs] = useState<FormInputs>({
     school: "",
     financialAid: "",
-    years: "4",
+    years: DEFAULT_YEARS,
     major1: "",
     major2: "",
     career1: "",
     career2: "",
     interestRate: "",
-    repaymentTerm: "10",
+    repaymentTerm: DEFAULT_REPAYMENT_TERM,
   });
 
-  const [results, setResults] = useState<any[] | null>(null);
+  const [results, setResults] = useState<CalculationResult[] | null>(null);
   const [comparison, setComparison] = useState<string | null>(null);
   const [totalLoanAmount, setTotalLoanAmount] = useState<number | null>(null);
+  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [showErrors, setShowErrors] = useState<boolean>(false);
 
-  const schools = {
-    "University A": 30000,
-    "University B": 25000,
-    "University C": 35000,
-  };
-
-  const majorsAndCareers = {
-    "Computer Science": ["Software Developer", "Data Scientist", "IT Manager"],
-    "Business Administration": [
-      "Financial Analyst",
-      "Marketing Manager",
-      "Human Resources Specialist",
-    ],
-    "Mechanical Engineering": [
-      "Mechanical Engineer",
-      "Project Engineer",
-      "Manufacturing Engineer",
-    ],
-    Nursing: ["Registered Nurse", "Nurse Practitioner", "Nurse Manager"],
-    Psychology: [
-      "Clinical Psychologist",
-      "School Counselor",
-      "Research Psychologist",
-    ],
-    Education: [
-      "Elementary Teacher",
-      "High School Teacher",
-      "Education Administrator",
-    ],
-    English: ["Editor", "Technical Writer", "Public Relations Specialist"],
-    Biology: ["Biologist", "Environmental Scientist", "Biochemist"],
-    Art: ["Graphic Designer", "Art Director", "Art Teacher"],
-  };
-
-  const salaryData = {
-    "Computer Science": {
-      "Software Developer": 110000,
-      "Data Scientist": 120000,
-      "IT Manager": 140000,
-    },
-    "Business Administration": {
-      "Financial Analyst": 75000,
-      "Marketing Manager": 95000,
-      "Human Resources Specialist": 65000,
-    },
-    "Mechanical Engineering": {
-      "Mechanical Engineer": 85000,
-      "Project Engineer": 80000,
-      "Manufacturing Engineer": 78000,
-    },
-    Nursing: {
-      "Registered Nurse": 75000,
-      "Nurse Practitioner": 110000,
-      "Nurse Manager": 95000,
-    },
-    Psychology: {
-      "Clinical Psychologist": 85000,
-      "School Counselor": 65000,
-      "Research Psychologist": 90000,
-    },
-    Education: {
-      "Elementary Teacher": 60000,
-      "High School Teacher": 65000,
-      "Education Administrator": 85000,
-    },
-    English: {
-      Editor: 55000,
-      "Technical Writer": 65000,
-      "Public Relations Specialist": 60000,
-    },
-    Biology: {
-      Biologist: 65000,
-      "Environmental Scientist": 62000,
-      Biochemist: 92000,
-    },
-    Art: {
-      "Graphic Designer": 60000,
-      "Art Director": 85000,
-      "Art Teacher": 55000,
-    },
-  };
-
-  const handleInputChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement> = (e) => {
+  const handleInputChange: React.ChangeEventHandler<
+    HTMLInputElement | HTMLSelectElement
+  > = (e) => {
     const { name, value } = e.target;
-  
+
     setInputs((prevInputs) => {
       const newInputs = { ...prevInputs, [name]: value };
-  
-      if (name === "major1") newInputs.career1 = ""; // Clear career1 if major1 changes
-      if (name === "major2") newInputs.career2 = ""; // Clear career2 if major2 changes
-  
+
+      // Clear career selection when major changes
+      if (name === "major1") newInputs.career1 = "";
+      if (name === "major2") newInputs.career2 = "";
+
       return newInputs;
     });
+
+    // Clear error for this field when user starts typing
+    if (showErrors && errors[name as keyof ValidationErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
   
 
-  const calculateTotalLoanAmount = () => {
-    const tuition = schools[inputs.school as keyof typeof schools]; // Type assertion
+  const calculateTotalLoanAmount = (): number => {
+    const tuition = SCHOOLS[inputs.school];
     const years = parseInt(inputs.years);
     const financialAid = parseFloat(inputs.financialAid) || 0;
     const totalCost = tuition * years;
     const loanAmount = totalCost - financialAid * years;
-    setTotalLoanAmount(Math.max(0, loanAmount));
     return Math.max(0, loanAmount);
   };
-  
-  const calculateGrade = (debtToIncomeRatio: number) => {
-    if (debtToIncomeRatio <= 0.5) return "A";
-    if (debtToIncomeRatio <= 1) return "B";
-    if (debtToIncomeRatio <= 1.5) return "C";
-    if (debtToIncomeRatio <= 2) return "D";
-    return "F";
-  };
 
-  const calculateResults = () => {
+  const handleCalculate = () => {
+    // Validate inputs
+    const validationErrors = validateInputs(inputs);
+    setErrors(validationErrors);
+    setShowErrors(true);
+
+    // If there are errors, don't proceed with calculation
+    if (Object.keys(validationErrors).length > 0) {
+      setResults(null);
+      setComparison(null);
+      setTotalLoanAmount(null);
+      return;
+    }
+
+    // Calculate loan amount
     const loanAmount = calculateTotalLoanAmount();
-    const interestRate = parseFloat(inputs.interestRate) / 100 / 12;
-    const repaymentTerm = parseInt(inputs.repaymentTerm) * 12;
+    setTotalLoanAmount(loanAmount);
 
-    const monthlyPayment =
-      (loanAmount * interestRate * Math.pow(1 + interestRate, repaymentTerm)) /
-      (Math.pow(1 + interestRate, repaymentTerm) - 1);
+    // Get salary data for both careers
+    const career1Income = SALARY_DATA[inputs.major1]?.[inputs.career1];
+    const career2Income = SALARY_DATA[inputs.major2]?.[inputs.career2];
 
-    const career1Income = salaryData[inputs.major1][inputs.career1];
-    const career2Income = salaryData[inputs.major2][inputs.career2];
+    // Safety check - should not happen with validation, but defensive programming
+    if (!career1Income || !career2Income) {
+      console.error("Invalid career income data");
+      return;
+    }
 
-    const results = [
+    // Calculate monthly payment with edge case handling
+    const interestRate = parseFloat(inputs.interestRate);
+    const repaymentTerm = parseInt(inputs.repaymentTerm);
+    const monthlyPayment = calculateMonthlyPayment(
+      loanAmount,
+      interestRate,
+      repaymentTerm
+    );
+
+    // Build results for both career options
+    const calculationResults: CalculationResult[] = [
       {
         major: inputs.major1,
         career: inputs.career1,
@@ -153,6 +113,7 @@ const FinancialLiteracyCalculator: React.FC = () => {
         monthlyPayment: monthlyPayment,
         remainingIncome: career1Income / 12 - monthlyPayment,
         debtToIncomeRatio: loanAmount / career1Income,
+        grade: calculateGrade(loanAmount / career1Income),
       },
       {
         major: inputs.major2,
@@ -162,188 +123,386 @@ const FinancialLiteracyCalculator: React.FC = () => {
         monthlyPayment: monthlyPayment,
         remainingIncome: career2Income / 12 - monthlyPayment,
         debtToIncomeRatio: loanAmount / career2Income,
+        grade: calculateGrade(loanAmount / career2Income),
       },
     ];
 
-    results.forEach((result) => {
-      result.grade = calculateGrade(result.debtToIncomeRatio);
-    });
+    setResults(calculationResults);
 
-    setResults(results);
-
+    // Generate comparison text
     const betterOption =
-      results[0].debtToIncomeRatio < results[1].debtToIncomeRatio ? 0 : 1;
+      calculationResults[0].debtToIncomeRatio <
+      calculationResults[1].debtToIncomeRatio
+        ? 0
+        : 1;
     const worseOption = betterOption === 0 ? 1 : 0;
 
     const comparisonText = `The ${
-      results[betterOption].major
-    } major with a career as a ${results[betterOption].career} (Grade: ${
-      results[betterOption].grade
+      calculationResults[betterOption].major
+    } major with a career as a ${
+      calculationResults[betterOption].career
+    } (Grade: ${
+      calculationResults[betterOption].grade
     }) appears to be a better financial choice compared to the ${
-      results[worseOption].major
-    } major with a career as a ${results[worseOption].career} (Grade: ${
-      results[worseOption].grade
+      calculationResults[worseOption].major
+    } major with a career as a ${calculationResults[worseOption].career} (Grade: ${
+      calculationResults[worseOption].grade
     }). The ${
-      results[betterOption].major
-    } option has a lower debt-to-income ratio of ${(
-      results[betterOption].debtToIncomeRatio * 100
-    ).toFixed(2)}% compared to ${(
-      results[worseOption].debtToIncomeRatio * 100
-    ).toFixed(2)}% for the ${results[worseOption].major} option.`;
+      calculationResults[betterOption].major
+    } option has a lower debt-to-income ratio of ${formatPercentage(
+      calculationResults[betterOption].debtToIncomeRatio
+    )} compared to ${formatPercentage(
+      calculationResults[worseOption].debtToIncomeRatio
+    )} for the ${calculationResults[worseOption].major} option.`;
 
     setComparison(comparisonText);
   };
 
   return (
     <div className="container">
-      <h1 className="title">Enhanced Financial Literacy Calculator</h1>
-  
-      <div className="form-grid">
-        <select
-          name="school"
-          value={inputs.school}
-          onChange={handleInputChange}
-          className="form-select"
-        >
-          <option value="">Select School</option>
-          {Object.entries(schools).map(([school, tuition]) => (
-            <option key={school} value={school}>
-              {school} - ${tuition.toLocaleString()}/year
-            </option>
-          ))}
-        </select>
-  
-        <input
-          name="financialAid"
-          type="number"
-          placeholder="Annual Financial Aid"
-          value={inputs.financialAid}
-          onChange={handleInputChange}
-          className="form-input"
-        />
-  
-        <input
-          name="years"
-          type="number"
-          placeholder="Years of Study"
-          value={inputs.years}
-          onChange={handleInputChange}
-          className="form-input"
-        />
-  
-        <select
-          name="major1"
-          value={inputs.major1}
-          onChange={handleInputChange}
-          className="form-select"
-        >
-          <option value="">Select Major 1</option>
-          {Object.keys(majorsAndCareers).map((major, index) => (
-            <option key={index} value={major}>
-              {major}
-            </option>
-          ))}
-        </select>
-  
-        <select
-          name="major2"
-          value={inputs.major2}
-          onChange={handleInputChange}
-          className="form-select"
-        >
-          <option value="">Select Major 2</option>
-          {Object.keys(majorsAndCareers).map((major, index) => (
-            <option key={index} value={major}>
-              {major}
-            </option>
-          ))}
-        </select>
-  
-        <select
-          name="career1"
-          value={inputs.career1}
-          onChange={handleInputChange}
-          className="form-select"
-          disabled={!inputs.major1}
-        >
-          <option value="">Select Career 1</option>
-          {inputs.major1 &&
-            majorsAndCareers[inputs.major1].map((career, index) => (
-              <option key={index} value={career}>
-                {career}
+      <h1 className="title">Financial Literacy Calculator</h1>
+
+      <form
+        className="form-grid"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleCalculate();
+        }}
+      >
+        <div className="form-field">
+          <label htmlFor="school" className="form-label">
+            School
+          </label>
+          <select
+            id="school"
+            name="school"
+            value={inputs.school}
+            onChange={handleInputChange}
+            className={`form-select ${
+              showErrors && errors.school ? "form-error" : ""
+            }`}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.school}
+            aria-describedby={errors.school ? "school-error" : undefined}
+          >
+            <option value="">Select School</option>
+            {Object.entries(SCHOOLS).map(([school, tuition]) => (
+              <option key={school} value={school}>
+                {school} - {formatCurrency(tuition)}/year
               </option>
             ))}
-        </select>
-  
-        <select
-          name="career2"
-          value={inputs.career2}
-          onChange={handleInputChange}
-          className="form-select"
-          disabled={!inputs.major2}
-        >
-          <option value="">Select Career 2</option>
-          {inputs.major2 &&
-            majorsAndCareers[inputs.major2].map((career, index) => (
-              <option key={index} value={career}>
-                {career}
+          </select>
+          {showErrors && errors.school && (
+            <span id="school-error" className="error-message" role="alert">
+              {errors.school}
+            </span>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="financialAid" className="form-label">
+            Annual Financial Aid
+          </label>
+          <input
+            id="financialAid"
+            name="financialAid"
+            type="number"
+            placeholder="0"
+            value={inputs.financialAid}
+            onChange={handleInputChange}
+            className={`form-input ${
+              showErrors && errors.financialAid ? "form-error" : ""
+            }`}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.financialAid}
+            aria-describedby={
+              errors.financialAid ? "financialAid-error" : undefined
+            }
+          />
+          {showErrors && errors.financialAid && (
+            <span
+              id="financialAid-error"
+              className="error-message"
+              role="alert"
+            >
+              {errors.financialAid}
+            </span>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="years" className="form-label">
+            Years of Study
+          </label>
+          <input
+            id="years"
+            name="years"
+            type="number"
+            placeholder="4"
+            value={inputs.years}
+            onChange={handleInputChange}
+            className={`form-input ${
+              showErrors && errors.years ? "form-error" : ""
+            }`}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.years}
+            aria-describedby={errors.years ? "years-error" : undefined}
+          />
+          {showErrors && errors.years && (
+            <span id="years-error" className="error-message" role="alert">
+              {errors.years}
+            </span>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="major1" className="form-label">
+            Major 1
+          </label>
+          <select
+            id="major1"
+            name="major1"
+            value={inputs.major1}
+            onChange={handleInputChange}
+            className={`form-select ${
+              showErrors && errors.major1 ? "form-error" : ""
+            }`}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.major1}
+            aria-describedby={errors.major1 ? "major1-error" : undefined}
+          >
+            <option value="">Select Major 1</option>
+            {Object.keys(MAJORS_AND_CAREERS).map((major) => (
+              <option key={major} value={major}>
+                {major}
               </option>
             ))}
-        </select>
-  
-        <input
-          name="interestRate"
-          type="number"
-          placeholder="Interest Rate (%)"
-          value={inputs.interestRate}
-          onChange={handleInputChange}
-          className="form-input"
-        />
-  
-        <input
-          name="repaymentTerm"
-          type="number"
-          placeholder="Repayment Term (years)"
-          value={inputs.repaymentTerm}
-          onChange={handleInputChange}
-          className="form-input"
-        />
-  
-        <button
-          onClick={calculateResults}
-          className="calculate-button"
-        >
+          </select>
+          {showErrors && errors.major1 && (
+            <span id="major1-error" className="error-message" role="alert">
+              {errors.major1}
+            </span>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="major2" className="form-label">
+            Major 2
+          </label>
+          <select
+            id="major2"
+            name="major2"
+            value={inputs.major2}
+            onChange={handleInputChange}
+            className={`form-select ${
+              showErrors && errors.major2 ? "form-error" : ""
+            }`}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.major2}
+            aria-describedby={errors.major2 ? "major2-error" : undefined}
+          >
+            <option value="">Select Major 2</option>
+            {Object.keys(MAJORS_AND_CAREERS).map((major) => (
+              <option key={major} value={major}>
+                {major}
+              </option>
+            ))}
+          </select>
+          {showErrors && errors.major2 && (
+            <span id="major2-error" className="error-message" role="alert">
+              {errors.major2}
+            </span>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="career1" className="form-label">
+            Career 1
+          </label>
+          <select
+            id="career1"
+            name="career1"
+            value={inputs.career1}
+            onChange={handleInputChange}
+            className={`form-select ${
+              showErrors && errors.career1 ? "form-error" : ""
+            }`}
+            disabled={!inputs.major1}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.career1}
+            aria-describedby={errors.career1 ? "career1-error" : undefined}
+          >
+            <option value="">
+              {inputs.major1 ? "Select Career 1" : "Select Major 1 First"}
+            </option>
+            {inputs.major1 &&
+              MAJORS_AND_CAREERS[inputs.major1].map((career) => (
+                <option key={career} value={career}>
+                  {career}
+                </option>
+              ))}
+          </select>
+          {showErrors && errors.career1 && (
+            <span id="career1-error" className="error-message" role="alert">
+              {errors.career1}
+            </span>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="career2" className="form-label">
+            Career 2
+          </label>
+          <select
+            id="career2"
+            name="career2"
+            value={inputs.career2}
+            onChange={handleInputChange}
+            className={`form-select ${
+              showErrors && errors.career2 ? "form-error" : ""
+            }`}
+            disabled={!inputs.major2}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.career2}
+            aria-describedby={errors.career2 ? "career2-error" : undefined}
+          >
+            <option value="">
+              {inputs.major2 ? "Select Career 2" : "Select Major 2 First"}
+            </option>
+            {inputs.major2 &&
+              MAJORS_AND_CAREERS[inputs.major2].map((career) => (
+                <option key={career} value={career}>
+                  {career}
+                </option>
+              ))}
+          </select>
+          {showErrors && errors.career2 && (
+            <span id="career2-error" className="error-message" role="alert">
+              {errors.career2}
+            </span>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="interestRate" className="form-label">
+            Interest Rate (%)
+          </label>
+          <input
+            id="interestRate"
+            name="interestRate"
+            type="number"
+            step="0.01"
+            placeholder="5.5"
+            value={inputs.interestRate}
+            onChange={handleInputChange}
+            className={`form-input ${
+              showErrors && errors.interestRate ? "form-error" : ""
+            }`}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.interestRate}
+            aria-describedby={
+              errors.interestRate ? "interestRate-error" : undefined
+            }
+          />
+          {showErrors && errors.interestRate && (
+            <span
+              id="interestRate-error"
+              className="error-message"
+              role="alert"
+            >
+              {errors.interestRate}
+            </span>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="repaymentTerm" className="form-label">
+            Repayment Term (years)
+          </label>
+          <input
+            id="repaymentTerm"
+            name="repaymentTerm"
+            type="number"
+            placeholder="10"
+            value={inputs.repaymentTerm}
+            onChange={handleInputChange}
+            className={`form-input ${
+              showErrors && errors.repaymentTerm ? "form-error" : ""
+            }`}
+            aria-required="true"
+            aria-invalid={showErrors && !!errors.repaymentTerm}
+            aria-describedby={
+              errors.repaymentTerm ? "repaymentTerm-error" : undefined
+            }
+          />
+          {showErrors && errors.repaymentTerm && (
+            <span
+              id="repaymentTerm-error"
+              className="error-message"
+              role="alert"
+            >
+              {errors.repaymentTerm}
+            </span>
+          )}
+        </div>
+
+        <button type="submit" className="calculate-button">
           Calculate
         </button>
-      </div>
+      </form>
   
       {totalLoanAmount !== null && (
-        <div className="results-container">
+        <div className="results-container" role="region" aria-label="Loan Details">
           <h2 className="result-title">Total Loan Amount</h2>
-          <p className="result-value">${totalLoanAmount.toLocaleString()}</p>
+          <p className="result-value">{formatCurrency(totalLoanAmount)}</p>
         </div>
       )}
-  
+
       {results && (
-        <div className="results-container">
-          <h2 className="result-title">Results</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="results-container" role="region" aria-label="Comparison Results">
+          <h2 className="result-title">Career Comparison Results</h2>
+          <div className="results-grid">
             {results.map((result, index) => (
               <div key={index} className="result-card">
-                <h3>{result.major} - {result.career}</h3>
-                <p>Annual Income: ${result.annualIncome.toLocaleString()}</p>
-                <p>Monthly Payment: ${result.monthlyPayment.toFixed(2)}</p>
-                <p>Debt-to-Income Ratio: {(result.debtToIncomeRatio * 100).toFixed(2)}%</p>
-                <p className={`result-grade ${result.grade}`}>Grade: {result.grade}</p>
+                <h3 className="result-card-title">
+                  {result.major} - {result.career}
+                </h3>
+                <div className="result-details">
+                  <p>
+                    <strong>Annual Income:</strong>{" "}
+                    {formatCurrency(result.annualIncome)}
+                  </p>
+                  <p>
+                    <strong>Monthly Income:</strong>{" "}
+                    {formatCurrency(result.monthlyIncome)}
+                  </p>
+                  <p>
+                    <strong>Monthly Loan Payment:</strong>{" "}
+                    {formatCurrency(result.monthlyPayment)}
+                  </p>
+                  <p>
+                    <strong>Remaining Income:</strong>{" "}
+                    {formatCurrency(result.remainingIncome)}
+                  </p>
+                  <p>
+                    <strong>Debt-to-Income Ratio:</strong>{" "}
+                    {formatPercentage(result.debtToIncomeRatio)}
+                  </p>
+                  <p className={`result-grade grade-${result.grade}`}>
+                    <strong>Grade:</strong> {result.grade}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
           <div className="comparison">
-            <h3>Comparison:</h3>
-            <p>{comparison}</p>
+            <h3 className="comparison-title">Financial Analysis</h3>
+            <p className="comparison-text">{comparison}</p>
           </div>
         </div>
       )}
     </div>
   );
-  
+};
+
+export default FinancialLiteracyCalculator;
