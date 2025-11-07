@@ -57,7 +57,7 @@ const IncomeComparisonChart: React.FC<IncomeComparisonChartProps> = ({
           />
           <Legend
             wrapperStyle={{ paddingTop: "20px" }}
-            formatter={(_value, entry) => (entry as { payload: { major: string } }).payload.major}
+            formatter={(_value, entry) => (entry as unknown as { payload: { major: string } }).payload.major}
           />
           <Bar dataKey="income" radius={[8, 8, 0, 0]}>
             {data.map((entry, index) => (

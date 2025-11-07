@@ -20,6 +20,7 @@ import IncomeComparisonChart from "./components/IncomeComparisonChart";
 import BudgetBreakdownChart from "./components/BudgetBreakdownChart";
 import LoanPayoffChart from "./components/LoanPayoffChart";
 import AmortizationTable from "./components/AmortizationTable";
+import ExtraPaymentCalculator from "./components/ExtraPaymentCalculator";
 
 const FinancialLiteracyCalculator: React.FC = () => {
   const [inputs, setInputs] = useState<FormInputs>({
@@ -520,6 +521,15 @@ const FinancialLiteracyCalculator: React.FC = () => {
 
             <div className="visualization-row">
               <AmortizationTable
+                loanAmount={totalLoanAmount}
+                interestRate={parseFloat(inputs.interestRate)}
+                repaymentYears={parseInt(inputs.repaymentTerm)}
+              />
+            </div>
+
+            {/* Extra Payment What-If Scenarios */}
+            <div className="visualization-row">
+              <ExtraPaymentCalculator
                 loanAmount={totalLoanAmount}
                 interestRate={parseFloat(inputs.interestRate)}
                 repaymentYears={parseInt(inputs.repaymentTerm)}

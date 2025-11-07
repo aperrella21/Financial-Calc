@@ -203,3 +203,77 @@ export const getAmortizationSummary = (
     totalPrincipal: loanAmount,
   };
 };
+
+/**
+ * Calculates payoff with extra monthly payments
+ */
+export interface AcceleratedPayoffResult {
+  monthsToPayoff: number;
+  totalPaid: number;
+  totalInterest: number;
+  interestSaved: number;
+  timeSavedMonths: number;
+  schedule: AmortizationEntry[];
+}
+
+export const calculateAcceleratedPayoff = (
+  loanAmount: number,
+  annualInterestRate: number,
+  repaymentYears: number,
+  extraMonthlyPayment: number
+): AcceleratedPayoffResult => {
+  const standardMonthlyPayment = calculateMonthlyPayment(
+    loanAmount,
+    annualInterestRate,
+    repaymentYears
+  );
+  const totalMonthlyPayment = standardMonthlyPayment + extraMonthlyPayment;
+  const monthlyInterestRate = annualInterestRate / 100 / 12;
+
+  let remainingBalance = loanAmount;
+  let month = 0;
+  let totalPaid = 0;
+  const schedule: AmortizationEntry[] = [];
+  const maxMonths = repaymentYears * 12;
+
+  // Calculate with extra payments until loan is paid off
+  while (remainingBalance > 0 && month < maxMonths * 2) {
+    month++;
+
+    const interestPayment =
+      annualInterestRate === 0 ? 0 : remainingBalance * monthlyInterestRate;
+
+    // Ensure we don't overpay on the last payment
+    const payment = Math.min(totalMonthlyPayment, remainingBalance + interestPayment);
+    const principalPayment = payment - interestPayment;
+
+    totalPaid += payment;
+    remainingBalance = Math.max(0, remainingBalance - principalPayment);
+
+    schedule.push({
+      month,
+      payment,
+      principal: principalPayment,
+      interest: interestPayment,
+      balance: remainingBalance,
+    });
+
+    if (remainingBalance === 0) break;
+  }
+
+  const standardSummary = getAmortizationSummary(
+    loanAmount,
+    annualInterestRate,
+    repaymentYears
+  );
+
+  return {
+    monthsToPayoff: month,
+    totalPaid,
+    totalInterest: totalPaid - loanAmount,
+    interestSaved: standardSummary.totalInterest - (totalPaid - loanAmount),
+    timeSavedMonths: repaymentYears * 12 - month,
+    schedule,
+  };
+};
+
