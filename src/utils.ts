@@ -128,3 +128,78 @@ export const formatCurrency = (amount: number): string => {
 export const formatPercentage = (value: number): string => {
   return `${(value * 100).toFixed(2)}%`;
 };
+
+/**
+ * Generates amortization schedule for the loan
+ */
+export interface AmortizationEntry {
+  month: number;
+  payment: number;
+  principal: number;
+  interest: number;
+  balance: number;
+}
+
+export const generateAmortizationSchedule = (
+  loanAmount: number,
+  annualInterestRate: number,
+  repaymentYears: number
+): AmortizationEntry[] => {
+  const schedule: AmortizationEntry[] = [];
+  const monthlyPayment = calculateMonthlyPayment(
+    loanAmount,
+    annualInterestRate,
+    repaymentYears
+  );
+  const monthlyInterestRate = annualInterestRate / 100 / 12;
+  let remainingBalance = loanAmount;
+
+  const totalMonths = repaymentYears * 12;
+
+  for (let month = 1; month <= totalMonths; month++) {
+    // Handle 0% interest case
+    const interestPayment =
+      annualInterestRate === 0 ? 0 : remainingBalance * monthlyInterestRate;
+    const principalPayment = monthlyPayment - interestPayment;
+    remainingBalance = Math.max(0, remainingBalance - principalPayment);
+
+    schedule.push({
+      month,
+      payment: monthlyPayment,
+      principal: principalPayment,
+      interest: interestPayment,
+      balance: remainingBalance,
+    });
+  }
+
+  return schedule;
+};
+
+/**
+ * Gets summary statistics for amortization
+ */
+export interface AmortizationSummary {
+  totalPaid: number;
+  totalInterest: number;
+  totalPrincipal: number;
+}
+
+export const getAmortizationSummary = (
+  loanAmount: number,
+  annualInterestRate: number,
+  repaymentYears: number
+): AmortizationSummary => {
+  const monthlyPayment = calculateMonthlyPayment(
+    loanAmount,
+    annualInterestRate,
+    repaymentYears
+  );
+  const totalPaid = monthlyPayment * repaymentYears * 12;
+  const totalInterest = totalPaid - loanAmount;
+
+  return {
+    totalPaid,
+    totalInterest,
+    totalPrincipal: loanAmount,
+  };
+};

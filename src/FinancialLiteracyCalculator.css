@@ -236,6 +236,161 @@
   margin: 0;
 }
 
+/* Loan Summary Cards */
+.loan-summary {
+  margin-top: 24px;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.summary-card {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: #718096;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.summary-value.highlight-red {
+  color: #e53e3e;
+}
+
+/* Visualizations Section */
+.visualizations-section {
+  margin-top: 40px;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.visualization-row {
+  margin-bottom: 32px;
+}
+
+.visualization-row.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* Chart Container */
+.chart-container {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.chart-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Amortization Table */
+.amortization-container {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.amortization-table-wrapper {
+  overflow-x: auto;
+  margin: 16px 0;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.amortization-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.amortization-table thead {
+  background-color: #f7fafc;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.amortization-table th {
+  padding: 12px 16px;
+  text-align: right;
+  font-weight: 600;
+  color: #2d3748;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.amortization-table th:first-child {
+  text-align: center;
+}
+
+.amortization-table td {
+  padding: 10px 16px;
+  text-align: right;
+  color: #4a5568;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.amortization-table td:first-child {
+  text-align: center;
+  font-weight: 600;
+}
+
+.amortization-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.show-more-button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background-color: #edf2f7;
+  color: #2d3748;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.show-more-button:hover {
+  background-color: #e2e8f0;
+  border-color: #a0aec0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
@@ -257,5 +412,22 @@
 
   .results-grid {
     grid-template-columns: 1fr;
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .visualization-row.two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .amortization-table {
+    font-size: 0.75rem;
+  }
+
+  .amortization-table th,
+  .amortization-table td {
+    padding: 8px 12px;
   }
 }

@@ -14,7 +14,12 @@ import {
   calculateMonthlyPayment,
   formatCurrency,
   formatPercentage,
+  getAmortizationSummary,
 } from "./utils";
+import IncomeComparisonChart from "./components/IncomeComparisonChart";
+import BudgetBreakdownChart from "./components/BudgetBreakdownChart";
+import LoanPayoffChart from "./components/LoanPayoffChart";
+import AmortizationTable from "./components/AmortizationTable";
 
 const FinancialLiteracyCalculator: React.FC = () => {
   const [inputs, setInputs] = useState<FormInputs>({
@@ -451,55 +456,120 @@ const FinancialLiteracyCalculator: React.FC = () => {
         </button>
       </form>
   
-      {totalLoanAmount !== null && (
-        <div className="results-container" role="region" aria-label="Loan Details">
-          <h2 className="result-title">Total Loan Amount</h2>
-          <p className="result-value">{formatCurrency(totalLoanAmount)}</p>
-        </div>
-      )}
+      {totalLoanAmount !== null && results && (
+        <>
+          <div className="results-container" role="region" aria-label="Loan Details">
+            <h2 className="result-title">Total Loan Amount</h2>
+            <p className="result-value">{formatCurrency(totalLoanAmount)}</p>
 
-      {results && (
-        <div className="results-container" role="region" aria-label="Comparison Results">
-          <h2 className="result-title">Career Comparison Results</h2>
-          <div className="results-grid">
-            {results.map((result, index) => (
-              <div key={index} className="result-card">
-                <h3 className="result-card-title">
-                  {result.major} - {result.career}
-                </h3>
-                <div className="result-details">
-                  <p>
-                    <strong>Annual Income:</strong>{" "}
-                    {formatCurrency(result.annualIncome)}
-                  </p>
-                  <p>
-                    <strong>Monthly Income:</strong>{" "}
-                    {formatCurrency(result.monthlyIncome)}
-                  </p>
-                  <p>
-                    <strong>Monthly Loan Payment:</strong>{" "}
-                    {formatCurrency(result.monthlyPayment)}
-                  </p>
-                  <p>
-                    <strong>Remaining Income:</strong>{" "}
-                    {formatCurrency(result.remainingIncome)}
-                  </p>
-                  <p>
-                    <strong>Debt-to-Income Ratio:</strong>{" "}
-                    {formatPercentage(result.debtToIncomeRatio)}
-                  </p>
-                  <p className={`result-grade grade-${result.grade}`}>
-                    <strong>Grade:</strong> {result.grade}
-                  </p>
+            {/* Loan Summary Stats */}
+            <div className="loan-summary">
+              {(() => {
+                const summary = getAmortizationSummary(
+                  totalLoanAmount,
+                  parseFloat(inputs.interestRate),
+                  parseInt(inputs.repaymentTerm)
+                );
+                return (
+                  <div className="summary-cards">
+                    <div className="summary-card">
+                      <div className="summary-label">Total Amount Paid</div>
+                      <div className="summary-value">{formatCurrency(summary.totalPaid)}</div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="summary-label">Total Interest</div>
+                      <div className="summary-value highlight-red">
+                        {formatCurrency(summary.totalInterest)}
+                      </div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="summary-label">Monthly Payment</div>
+                      <div className="summary-value">
+                        {formatCurrency(results[0].monthlyPayment)}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Visual Comparisons Section */}
+          <div className="visualizations-section">
+            <h2 className="section-title">Visual Comparison</h2>
+
+            {/* Income Comparison Chart */}
+            <div className="visualization-row">
+              <IncomeComparisonChart results={results} />
+            </div>
+
+            {/* Budget Breakdown Charts */}
+            <div className="visualization-row two-column">
+              <BudgetBreakdownChart result={results[0]} />
+              <BudgetBreakdownChart result={results[1]} />
+            </div>
+
+            {/* Loan Details Section */}
+            <div className="visualization-row">
+              <LoanPayoffChart
+                loanAmount={totalLoanAmount}
+                interestRate={parseFloat(inputs.interestRate)}
+                repaymentYears={parseInt(inputs.repaymentTerm)}
+              />
+            </div>
+
+            <div className="visualization-row">
+              <AmortizationTable
+                loanAmount={totalLoanAmount}
+                interestRate={parseFloat(inputs.interestRate)}
+                repaymentYears={parseInt(inputs.repaymentTerm)}
+              />
+            </div>
+          </div>
+
+          {/* Career Comparison Cards */}
+          <div className="results-container" role="region" aria-label="Comparison Results">
+            <h2 className="result-title">Detailed Career Analysis</h2>
+            <div className="results-grid">
+              {results.map((result, index) => (
+                <div key={index} className="result-card">
+                  <h3 className="result-card-title">
+                    {result.major} - {result.career}
+                  </h3>
+                  <div className="result-details">
+                    <p>
+                      <strong>Annual Income:</strong>{" "}
+                      {formatCurrency(result.annualIncome)}
+                    </p>
+                    <p>
+                      <strong>Monthly Income:</strong>{" "}
+                      {formatCurrency(result.monthlyIncome)}
+                    </p>
+                    <p>
+                      <strong>Monthly Loan Payment:</strong>{" "}
+                      {formatCurrency(result.monthlyPayment)}
+                    </p>
+                    <p>
+                      <strong>Remaining Income:</strong>{" "}
+                      {formatCurrency(result.remainingIncome)}
+                    </p>
+                    <p>
+                      <strong>Debt-to-Income Ratio:</strong>{" "}
+                      {formatPercentage(result.debtToIncomeRatio)}
+                    </p>
+                    <p className={`result-grade grade-${result.grade}`}>
+                      <strong>Grade:</strong> {result.grade}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="comparison">
+              <h3 className="comparison-title">Financial Analysis</h3>
+              <p className="comparison-text">{comparison}</p>
+            </div>
           </div>
-          <div className="comparison">
-            <h3 className="comparison-title">Financial Analysis</h3>
-            <p className="comparison-text">{comparison}</p>
-          </div>
-        </div>
+        </>
       )}
     </div>
   );
