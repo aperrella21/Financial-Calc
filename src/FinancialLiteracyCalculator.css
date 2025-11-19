@@ -1,0 +1,591 @@
+/* FinancialLiteracyCalculator.css */
+
+/* General Styling */
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #1a202c;
+  line-height: 1.2;
+}
+
+/* Form Styling */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 2px;
+}
+
+.form-select,
+.form-input {
+  padding: 12px;
+  font-size: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+  font-family: inherit;
+}
+
+.form-select:hover:not(:disabled),
+.form-input:hover:not(:disabled) {
+  border-color: #cbd5e0;
+}
+
+.form-select:focus,
+.form-input:focus {
+  border-color: #4299e1;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.form-select:disabled,
+.form-input:disabled {
+  background-color: #f7fafc;
+  color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.form-error {
+  border-color: #fc8181 !important;
+}
+
+.form-error:focus {
+  box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.1) !important;
+}
+
+.error-message {
+  font-size: 0.8125rem;
+  color: #e53e3e;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.calculate-button {
+  grid-column: span 2;
+  padding: 14px 24px;
+  background-color: #4299e1;
+  color: #ffffff;
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
+}
+
+.calculate-button:hover {
+  background-color: #3182ce;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(66, 153, 225, 0.3);
+}
+
+.calculate-button:active {
+  transform: translateY(0);
+}
+
+/* Results Styling */
+.results-container {
+  margin-top: 40px;
+  padding: 24px;
+  background-color: #f7fafc;
+  border-radius: 12px;
+}
+
+.result-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.result-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3748;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.result-card {
+  padding: 24px;
+  background-color: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.result-card:hover {
+  border-color: #cbd5e0;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.result-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.result-details p {
+  font-size: 0.9375rem;
+  color: #4a5568;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.result-details p:last-child {
+  margin-bottom: 0;
+}
+
+.result-grade {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.grade-A {
+  color: #22543d;
+  background-color: #c6f6d5;
+}
+
+.grade-B {
+  color: #744210;
+  background-color: #feebc8;
+}
+
+.grade-C {
+  color: #7c2d12;
+  background-color: #fed7aa;
+}
+
+.grade-D {
+  color: #742a2a;
+  background-color: #fed7d7;
+}
+
+.grade-F {
+  color: #742a2a;
+  background-color: #feb2b2;
+}
+
+/* Comparison Section */
+.comparison {
+  margin-top: 24px;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border-left: 4px solid #4299e1;
+}
+
+.comparison-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 12px;
+}
+
+.comparison-text {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #4a5568;
+  margin: 0;
+}
+
+/* Loan Summary Cards */
+.loan-summary {
+  margin-top: 24px;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.summary-card {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: #718096;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.summary-value.highlight-red {
+  color: #e53e3e;
+}
+
+/* Visualizations Section */
+.visualizations-section {
+  margin-top: 40px;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.visualization-row {
+  margin-bottom: 32px;
+}
+
+.visualization-row.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* Chart Container */
+.chart-container {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.chart-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Amortization Table */
+.amortization-container {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.amortization-table-wrapper {
+  overflow-x: auto;
+  margin: 16px 0;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.amortization-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.amortization-table thead {
+  background-color: #f7fafc;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.amortization-table th {
+  padding: 12px 16px;
+  text-align: right;
+  font-weight: 600;
+  color: #2d3748;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.amortization-table th:first-child {
+  text-align: center;
+}
+
+.amortization-table td {
+  padding: 10px 16px;
+  text-align: right;
+  color: #4a5568;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.amortization-table td:first-child {
+  text-align: center;
+  font-weight: 600;
+}
+
+.amortization-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.show-more-button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background-color: #edf2f7;
+  color: #2d3748;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.show-more-button:hover {
+  background-color: #e2e8f0;
+  border-color: #a0aec0;
+}
+
+/* Extra Payment Calculator */
+.extra-payment-container {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.extra-payment-controls {
+  margin: 24px 0;
+  padding: 20px;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  border: 2px dashed #cbd5e0;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.control-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.input-with-prefix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 12px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #4a5568;
+  pointer-events: none;
+}
+
+.extra-payment-input {
+  width: 100%;
+  padding: 12px 12px 12px 32px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border: 2px solid #cbd5e0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.extra-payment-input:focus {
+  border-color: #4299e1;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.savings-summary {
+  margin: 24px 0;
+}
+
+.savings-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.savings-card {
+  background-color: #f7fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.savings-card.highlight {
+  background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+  border-color: #48bb78;
+}
+
+.savings-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.savings-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.savings-label {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.savings-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.savings-value.success {
+  color: #22543d;
+}
+
+.savings-subtext {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #718096;
+  margin-top: 4px;
+}
+
+.comparison-chart-container {
+  margin-top: 24px;
+}
+
+.comparison-chart-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.no-extra-payment-message {
+  padding: 40px 20px;
+  text-align: center;
+  color: #718096;
+  font-size: 1rem;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  margin: 24px 0;
+}
+
+.no-extra-payment-message p {
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .calculate-button {
+    grid-column: span 1;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .visualization-row.two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .amortization-table {
+    font-size: 0.75rem;
+  }
+
+  .amortization-table th,
+  .amortization-table td {
+    padding: 8px 12px;
+  }
+
+  .savings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .control-group {
+    max-width: 100%;
+  }
+}
